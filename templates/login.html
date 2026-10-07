@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Clínica Veterinária</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f9; margin: 0; }
+        .login-card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 320px; }
+        h2 { margin-top: 0; color: #333; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        button:hover { background: #218838; }
+        .erro { color: red; font-size: 14px; margin-top: 10px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <input type="email" id="email" placeholder="E-mail" value="ana@clinica.com" required>
+            <input type="password" id="senha" placeholder="Senha" value="senha123" required>
+            <button type="submit">Entrar</button>
+        </form>
+        <div id="mensagemErro" class="erro"></div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            const erroDiv = document.getElementById('mensagemErro');
+            erroDiv.innerText = 'Verificando...';
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, senha })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('usuarioNome', data.usuario.nome);
+                    window.location.href = '/dashboard';
+                } else {
+                    erroDiv.innerText = data.mensagem || 'Falha no login.';
+                }
+            } catch (err) {
+                erroDiv.innerText = 'Erro ao se conectar com o servidor Flask.';
+            }
+        });
+    </script>
+</body>
+</html>
